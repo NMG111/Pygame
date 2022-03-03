@@ -1,9 +1,9 @@
-
 import pygame
 import glob
 pygame.init()
 
-win = pygame.display.set_mode((500, 700))
+win = pygame.display.set_mode((500,480))
+
 pygame.display.set_caption("First Game")
 
 def loadImages(folderName,flip,x_size,y_size):
@@ -18,16 +18,25 @@ def loadImages(folderName,flip,x_size,y_size):
       output[i]=pygame.transform.flip(output[i],True,False)
 
   return output
+  
 
-walkRight=loadImages('Cupid',1,64,64)
-walkLeft=loadImages('Cupid',0,64,64)
+walkRight=loadImages('Player',1,64,64)
+walkLeft=loadImages('Player',0,64,64)
 
 
-bg = pygame.image.load('BG.png')
-char = pygame.image.load('Cupid_DeathStare.png')
-char=pygame.transform.scale(char,(64,64))
+
+bg = pygame.image.load('bg.jpg')
+char = pygame.image.load('standing.png')
 
 clock = pygame.time.Clock()
+
+bulletSound = pygame.mixer.Sound('Game_bullet (3).mp3')
+hitSound = pygame.mixer.Sound('Game_hit.mp3')
+
+music = pygame.mixer.music.load('music (1).mp3')
+pygame.mixer.music.play(-1)
+
+score = 0
 
 class player(object):
     def __init__(self,x,y,width,height):
@@ -61,7 +70,7 @@ class player(object):
             else:
                 win.blit(walkLeft[0], (self.x, self.y))
         self.hitbox = (self.x + 17, self.y + 11, 29, 52)
-        pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+        #pygame.draw.rect(win, (255,0,0), self.hitbox,2)
 
     def hit(self):
         self.isJump = False
@@ -98,11 +107,10 @@ class projectile(object):
 
 
 class enemy(object):
-    walkRight=loadImages('Enemy 1',1,64,64)
-    walkLeft=loadImages('Enemy 1',0,64,64)
 
 
-
+    walkRight=loadImages('Enemy',1,64,64)
+    walkLeft=loadImages('Enemy',0,64,64)
 
     def __init__(self, x, y, width, height, end):
         self.x = x
@@ -133,7 +141,7 @@ class enemy(object):
             pygame.draw.rect(win, (255,0,0), (self.hitbox[0], self.hitbox[1] - 20, 50, 10))
             pygame.draw.rect(win, (0,128,0), (self.hitbox[0], self.hitbox[1] - 20, 50 - (5 * (10 - self.health)), 10))
             self.hitbox = (self.x + 17, self.y + 2, 31, 57)
-            pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+            #pygame.draw.rect(win, (255,0,0), self.hitbox,2)
 
     def move(self):
         if self.vel > 0:
@@ -178,45 +186,44 @@ shootLoop = 0
 bullets = []
 run = True
 while run:
-  clock.tick(27)
+    clock.tick(27)
 
-  if goblin.visible == True:
-    if man.hitbox[1] < goblin.hitbox[1] + goblin.hitbox[3] and man.hitbox[1] + man.hitbox[3] > goblin.hitbox[1]:
-      if man.hitbox[0] + man.hitbox[2] > goblin.hitbox[0] and man.hitbox[0] < goblin.hitbox[0] + goblin.hitbox[2]:
-        man.hit()
-        score -= 5
+    if goblin.visible == True:
+        if man.hitbox[1] < goblin.hitbox[1] + goblin.hitbox[3] and man.hitbox[1] + man.hitbox[3] > goblin.hitbox[1]:
+            if man.hitbox[0] + man.hitbox[2] > goblin.hitbox[0] and man.hitbox[0] < goblin.hitbox[0] + goblin.hitbox[2]:
+                man.hit()
+                score -= 5
 
-
-  if shootLoop > 0:
-    shootLoop += 1
-  if shootLoop > 3:
-    shootLoop = 0
+    if shootLoop > 0:
+        shootLoop += 1
+    if shootLoop > 3:
+        shootLoop = 0
     
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      run = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
         
-  for bullet in bullets:
-    if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
-      if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
-              hitSound.play()
-              goblin.hit()
-              score += 1
-              bullets.pop(bullets.index(bullet))
-               
-              if bullet.x < 500 and bullet.x > 0:
-                bullet.x += bullet.vel 
-              else: 
-                bullet.pop(bullets.index(bullet))
+    for bullet in bullets:
+        if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
+            if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
+                hitSound.play()
+                goblin.hit()
+                score += 1
+                bullets.pop(bullets.index(bullet))
+                
+        if bullet.x < 500 and bullet.x > 0:
+            bullet.x += bullet.vel
+        else:
+            bullets.pop(bullets.index(bullet))
 
-      keys = pygame.key.get_pressed()
+    keys = pygame.key.get_pressed()
 
-      if keys[pygame.K_SPACE] and shootLoop == 0:
+    if keys[pygame.K_SPACE] and shootLoop == 0:
         bulletSound.play()
         if man.left:
-          facing = -1
+            facing = -1
         else:
-          facing = 1
+            facing = 1
             
         if len(bullets) < 5:
             bullets.append(projectile(round(man.x + man.width //2), round(man.y + man.height//2), 6, (0,0,0), facing))
@@ -256,4 +263,4 @@ while run:
             
     redrawGameWindow()
 
-pygame.quit()
+pygame.quit() 
