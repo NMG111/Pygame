@@ -2,7 +2,7 @@ import pygame
 import glob
 pygame.init()
 
-win = pygame.display.set_mode((500,480))
+win = pygame.display.set_mode((600,600))
 
 pygame.display.set_caption("First Game")
 
@@ -30,7 +30,7 @@ char = pygame.image.load('standing.png')
 
 clock = pygame.time.Clock()
 
-bulletSound = pygame.mixer.Sound('Game_bullet (3).mp3')
+bulletSound = pygame.mixer.Sound('Arrow_Hit.mp3')
 hitSound = pygame.mixer.Sound('Game_hit.mp3')
 
 music = pygame.mixer.music.load('music (1).mp3')
